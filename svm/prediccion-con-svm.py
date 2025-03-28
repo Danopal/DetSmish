@@ -21,7 +21,7 @@ X_train, X_test, y_train, y_test = train_test_split(
 from sklearn.svm import SVC
 
 # Crear y entrenar el modelo SVM
-model = SVC(kernel="linear", class_weight="balanced")  # Kernel lineal funciona bien para texto
+model = SVC(kernel="rbf", class_weight="balanced")  # Kernel lineal funciona bien para texto
 model.fit(X_train, y_train)
 
 from sklearn.metrics import classification_report, confusion_matrix
@@ -35,7 +35,7 @@ print(classification_report(y_test, y_pred))
 # Matriz de confusión (opcional)
 print(confusion_matrix(y_test, y_pred))
 
-nuevo_mensaje = ["El transporte de su paquete se ha detenido por la falta de informacion completa del destinatario. Haga clic para actualizar: "]
+nuevo_mensaje = ["Reconfirma tu reserva para el tratamiento"]
 nuevo_vector = vectorizer.transform(nuevo_mensaje)
 prediccion = model.predict(nuevo_vector)
 print(prediccion)  # Debería devolver ["spam"]
