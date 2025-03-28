@@ -35,3 +35,7 @@ print(classification_report(y_test, y_pred))
 # Matriz de confusión (opcional)
 print(confusion_matrix(y_test, y_pred))
 
+nuevo_mensaje = ["Gana dinero rápido desde casa"]
+nuevo_vector = vectorizer.transform(nuevo_mensaje)
+prediccion = model.predict(nuevo_vector)
+print(prediccion)  # Debería devolver ["spam"]
