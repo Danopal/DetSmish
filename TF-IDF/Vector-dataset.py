@@ -12,11 +12,6 @@ from nltk.stem import SnowballStemmer, WordNetLemmatizer
 import nltk
 from nltk.tokenize import word_tokenize
 
-# Descargar recursos de NLTK (solo primera vez)
-nltk.download('punkt')
-nltk.download('stopwords')
-nltk.download('wordnet')
-
 class TextPreprocessor:
     def __init__(self, 
                  remove_punct=True, 
