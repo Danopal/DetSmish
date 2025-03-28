@@ -1,60 +1,80 @@
 import pandas as pd
-import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn import svm
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.metrics import classification_report, accuracy_score
-from sklearn.pipeline import Pipeline
 import re
 import string
+import pickle
+from sklearn.feature_extraction.text import TfidfVectorizer
 from nltk.corpus import stopwords
-from nltk.stem import SnowballStemmer, WordNetLemmatizer
-import nltk
+from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+import nltk
 
 # Descargar recursos de NLTK (solo primera vez)
 nltk.download('punkt')
 nltk.download('stopwords')
 nltk.download('wordnet')
 
-class TextPreprocessor:
+class TextCleaner:
     def __init__(self, 
-                 remove_punct=True, 
-                 remove_numbers=True, 
-                 remove_stopwords=True, 
-                 stem_words=False, 
-                 lemmatize_words=True,
-                 language='english'):
+                 remove_punct=True,
+                 remove_numbers=True,
+                 remove_stopwords=True,
+                 lemmatize=True,
+                 remove_emails=True,
+                 remove_urls=True,
+                 remove_html=True,
+                 remove_special_chars=True,
+                 language='spanish'):
         """
-        Inicializa el preprocesador de texto con configuraciones personalizables
+        Inicializa el limpiador de texto con configuraciones personalizables
         
         Parámetros:
-        - remove_punct: bool, eliminar puntuación
-        - remove_numbers: bool, eliminar números
-        - remove_stopwords: bool, eliminar stopwords
-        - stem_words: bool, aplicar stemming
-        - lemmatize_words: bool, aplicar lematización
-        - language: str, idioma para stopwords y lematización
+        - remove_punct: eliminar puntuación
+        - remove_numbers: eliminar números
+        - remove_stopwords: eliminar stopwords
+        - lemmatize: aplicar lematización
+        - remove_emails: eliminar direcciones de email
+        - remove_urls: eliminar URLs
+        - remove_html: eliminar tags HTML
+        - remove_special_chars: eliminar caracteres especiales
+        - language: idioma para stopwords y lematización
         """
         self.remove_punct = remove_punct
         self.remove_numbers = remove_numbers
         self.remove_stopwords = remove_stopwords
-        self.stem_words = stem_words
-        self.lemmatize_words = lemmatize_words
+        self.lemmatize = lemmatize
+        self.remove_emails = remove_emails
+        self.remove_urls = remove_urls
+        self.remove_html = remove_html
+        self.remove_special_chars = remove_special_chars
         self.language = language
         
         # Inicializar herramientas según configuración
         self.stop_words = set(stopwords.words(language)) if remove_stopwords else None
-        self.stemmer = SnowballStemmer(language) if stem_words else None
-        self.lemmatizer = WordNetLemmatizer() if lemmatize_words else None
+        self.lemmatizer = WordNetLemmatizer() if lemmatize else None
         
-    def preprocess_text(self, text):
+    def clean_text(self, text):
         """Aplica todas las transformaciones de limpieza al texto"""
         if not isinstance(text, str):
             return ""
         
         # Convertir a minúsculas
         text = text.lower()
+        
+        # Eliminar emails
+        if self.remove_emails:
+            text = re.sub(r'\S+@\S+', '', text)
+        
+        # Eliminar URLs
+        if self.remove_urls:
+            text = re.sub(r'http\S+|www\S+|https\S+', '', text, flags=re.MULTILINE)
+        
+        # Eliminar HTML tags
+        if self.remove_html:
+            text = re.sub(r'<.*?>', '', text)
+        
+        # Eliminar caracteres especiales
+        if self.remove_special_chars:
+            text = re.sub(r'[^\w\s]', '', text)
         
         # Eliminar puntuación
         if self.remove_punct:
@@ -71,188 +91,123 @@ class TextPreprocessor:
         if self.remove_stopwords and self.stop_words:
             words = [w for w in words if w not in self.stop_words]
         
-        # Stemming
-        if self.stem_words and self.stemmer:
-            words = [self.stemmer.stem(w) for w in words]
-        
         # Lematización
-        if self.lemmatize_words and self.lemmatizer:
+        if self.lemmatize and self.lemmatizer:
             words = [self.lemmatizer.lemmatize(w) for w in words]
         
         return ' '.join(words)
 
-def load_and_preprocess_data(filepath, text_column, label_column, preprocessor):
-    """
-    Carga y preprocesa los datos del CSV
-    
-    Parámetros:
-    - filepath: ruta al archivo CSV
-    - text_column: nombre de la columna con el texto
-    - label_column: nombre de la columna con las etiquetas
-    - preprocessor: instancia de TextPreprocessor
-    
-    Retorna:
-    - textos preprocesados y etiquetas
-    """
+def load_data(filepath):
+    """Carga el dataset desde un archivo CSV"""
     df = pd.read_csv(filepath)
     
     # Verificar columnas
-    if text_column not in df.columns or label_column not in df.columns:
-        raise ValueError(f"Columnas '{text_column}' o '{label_column}' no encontradas en el CSV")
+    if 'Mensaje' not in df.columns or 'Etiqueta' not in df.columns:
+        raise ValueError("El dataset debe contener columnas 'Mensaje' y 'Etiqueta'")
     
-    # Preprocesar texto
-    df['processed_text'] = df[text_column].apply(preprocessor.preprocess_text)
-    
-    return df['processed_text'].values, df[label_column].values
+    return df
 
-def create_tfidf_vectorizer(max_features=None, 
-                          min_df=1, 
-                          max_df=1.0, 
-                          ngram_range=(1,1), 
-                          use_idf=True, 
-                          norm='l2',
-                          stop_words=None,
-                          analyzer='word'):
-    """
-    Crea y configura un vectorizador TF-IDF
+def show_examples(df, n=3):
+    """Muestra ejemplos del dataset antes y después de la limpieza"""
+    print("\n=== Ejemplos del dataset original ===")
+    print(df[['Mensaje', 'Etiqueta']].head(n))
     
-    Parámetros ajustables:
-    - max_features: número máximo de features (vocabulario)
-    - min_df: ignorar términos con frecuencia menor a este valor (absoluto) o proporción (si <1)
-    - max_df: ignorar términos con frecuencia mayor a este valor (proporción)
-    - ngram_range: rango de n-grams a considerar
-    - use_idf: habilitar/deshabilitar IDF
-    - norm: norma para normalización ('l1', 'l2' o None)
-    - stop_words: lista de stopwords o 'english' para usar las incorporadas
-    - analyzer: 'word', 'char' o 'char_wb'
-    """
-    return TfidfVectorizer(
-        max_features=max_features,
-        min_df=min_df,
-        max_df=max_df,
-        ngram_range=ngram_range,
-        use_idf=use_idf,
-        norm=norm,
-        stop_words=stop_words,
-        analyzer=analyzer
-    )
+    print("\n=== Ejemplos del dataset limpio ===")
+    print(df[['clean_text', 'Etiqueta']].head(n))
+    
+    print("\n=== Estadísticas descriptivas ===")
+    print(f"Número total de mensajes: {len(df)}")
+    print(f"Distribución de etiquetas:\n{df['Etiqueta'].value_counts()}")
+    print(f"Longitud promedio del texto: {df['clean_text'].apply(len).mean():.1f} caracteres")
 
-def train_svm(X_train, y_train, 
-             C=1.0, 
-             kernel='rbf', 
-             gamma='scale', 
-             class_weight=None, 
-             random_state=None):
+def create_and_save_tfidf(df, save_path='tfidf_vectorizer.pkl', **tfidf_params):
     """
-    Entrena un clasificador SVM con parámetros configurables
+    Crea y guarda el vectorizador TF-IDF
     
     Parámetros:
-    - C: parámetro de regularización
-    - kernel: 'linear', 'poly', 'rbf', 'sigmoid'
-    - gamma: coeficiente para kernels no lineales
-    - class_weight: balanceo de clases (None, 'balanced' o dict)
-    - random_state: semilla para reproducibilidad
-    """
-    clf = svm.SVC(
-        C=C,
-        kernel=kernel,
-        gamma=gamma,
-        class_weight=class_weight,
-        random_state=random_state,
-        probability=True
-    )
-    clf.fit(X_train, y_train)
-    return clf
-
-def evaluate_model(model, X_test, y_test):
-    """Evalúa el modelo y muestra métricas"""
-    y_pred = model.predict(X_test)
-    print("Exactitud:", accuracy_score(y_test, y_pred))
-    print("\nReporte de clasificación:")
-    print(classification_report(y_test, y_pred))
-
-def optimize_parameters(X, y):
-    """Optimización de hiperparámetros con GridSearchCV"""
-    pipeline = Pipeline([
-        ('tfidf', TfidfVectorizer()),
-        ('svm', svm.SVC())
-    ])
+    - df: DataFrame con los datos ya limpios
+    - save_path: ruta para guardar el vectorizador
+    - tfidf_params: parámetros para el TfidfVectorizer
     
-    parameters = {
-        'tfidf__max_features': [5000, 10000, None],
-        'tfidf__ngram_range': [(1,1), (1,2)],
-        'tfidf__norm': ['l1', 'l2'],
-        'svm__C': [0.1, 1, 10],
-        'svm__kernel': ['linear', 'rbf'],
-        'svm__gamma': ['scale', 'auto']
+    Retorna:
+    - X_tfidf: matriz de características vectorizadas
+    - vectorizer: el vectorizador entrenado
+    """
+    # Configuración por defecto (puede ser sobrescrita por tfidf_params)
+    default_params = {
+        'max_features': 10000,
+        'min_df': 5,
+        'max_df': 0.7,
+        'ngram_range': (1, 2),
+        'stop_words': None,  # Ya eliminamos stopwords en la limpieza
+        'norm': 'l2',
+        'analyzer': 'word'
     }
     
-    grid_search = GridSearchCV(pipeline, parameters, cv=3, n_jobs=-1, verbose=1)
-    grid_search.fit(X, y)
+    # Combinar parámetros por defecto con los proporcionados
+    params = {**default_params, **tfidf_params}
     
-    print("\nMejores parámetros encontrados:")
-    print(grid_search.best_params_)
+    # Crear y entrenar el vectorizador
+    vectorizer = TfidfVectorizer(**params)
+    X_tfidf = vectorizer.fit_transform(df['clean_text'])
     
-    return grid_search.best_estimator_
+    # Guardar el vectorizador
+    with open(save_path, 'wb') as f:
+        pickle.dump(vectorizer, f)
+    
+    print(f"\nVectorizador TF-IDF guardado en {save_path}")
+    print(f"Vocabulario size: {len(vectorizer.get_feature_names_out())}")
+    
+    return X_tfidf, vectorizer
+
+def save_clean_data(df, save_path='clean_data.csv'):
+    """Guarda los datos limpios para uso futuro"""
+    df.to_csv(save_path, index=False)
+    print(f"\nDatos limpios guardados en {save_path}")
 
 def main():
-    # Configuración personalizable
-    CSV_PATH = 'tu_dataset.csv'  # Cambiar por tu ruta
-    TEXT_COLUMN = 'text'         # Nombre columna con texto
-    LABEL_COLUMN = 'label'       # Nombre columna con etiquetas
+    # Configuración
+    DATA_PATH = 'Datasets/train.csv'
+    VECTORIZER_PATH = 'tfidf_vectorizer.pkl'
+    CLEAN_DATA_PATH = 'clean_data.csv'
     
-    # 1. Configurar preprocesamiento
-    preprocessor = TextPreprocessor(
+    # 1. Cargar datos
+    print("Cargando datos...")
+    df = load_data(DATA_PATH)
+    
+    # 2. Configurar limpiador de texto
+    cleaner = TextCleaner(
         remove_punct=True,
         remove_numbers=True,
         remove_stopwords=True,
-        stem_words=False,        # Generalmente lematización es mejor que stemming
-        lemmatize_words=True,
-        language='english'       # Cambiar según idioma del texto
+        lemmatize=True,
+        remove_emails=True,
+        remove_urls=True,
+        remove_html=True,
+        remove_special_chars=True,
+        language='spanish'  # Asumiendo que el texto está en español
     )
     
-    # 2. Cargar y preprocesar datos
-    X, y = load_and_preprocess_data(CSV_PATH, TEXT_COLUMN, LABEL_COLUMN, preprocessor)
+    # 3. Limpiar texto
+    print("Limpiando texto...")
+    df['clean_text'] = df['Mensaje'].apply(cleaner.clean_text)
     
-    # 3. Dividir datos
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    # 4. Mostrar ejemplos y estadísticas
+    show_examples(df)
     
-    # 4. Configurar TF-IDF (parámetros ajustables)
-    tfidf_vectorizer = create_tfidf_vectorizer(
-        max_features=10000,      # Limitar vocabulario para eficiencia
-        min_df=5,                # Ignorar términos muy raros
-        max_df=0.7,              # Ignorar términos muy comunes
-        ngram_range=(1,2),      # Unigramas y bigramas
-        use_idf=True,
-        norm='l2',
-        stop_words='english',    # None si ya se eliminaron stopwords en preprocesamiento
-        analyzer='word'
+    # 5. Crear y guardar vectorizador TF-IDF
+    print("\nCreando vectorizador TF-IDF...")
+    X_tfidf, vectorizer = create_and_save_tfidf(
+        df,
+        save_path=VECTORIZER_PATH,
+        max_features=15000,  # Puedes ajustar este parámetro
+        ngram_range=(1, 2)   # Unigramas y bigramas
     )
     
-    # 5. Vectorizar texto
-    X_train_tfidf = tfidf_vectorizer.fit_transform(X_train)
-    X_test_tfidf = tfidf_vectorizer.transform(X_test)
+    # 6. Guardar datos limpios
+    save_clean_data(df, CLEAN_DATA_PATH)
     
-    # 6. Entrenar SVM (parámetros ajustables)
-    svm_classifier = train_svm(
-        X_train_tfidf, y_train,
-        C=1.0,
-        kernel='linear',         # Kernel lineal suele funcionar bien con texto
-        gamma='scale',
-        class_weight='balanced'  # Útil si las clases están desbalanceadas
-    )
-    
-    # 7. Evaluar modelo
-    print("Evaluación con parámetros iniciales:")
-    evaluate_model(svm_classifier, X_test_tfidf, y_test)
-    
-    # 8. Opcional: Optimización de parámetros (lento pero puede mejorar resultados)
-    print("\nOptimizando parámetros...")
-    best_model = optimize_parameters(X_train, y_train)
-    
-    # Evaluar modelo optimizado
-    print("\nEvaluación con parámetros optimizados:")
-    evaluate_model(best_model, X_test, y_test)
+    print("\nProceso completado exitosamente!")
 
 if __name__ == "__main__":
     main()
