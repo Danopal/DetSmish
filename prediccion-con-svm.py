@@ -4,7 +4,7 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-
+from  ocr import mensaje
 # Cargar datos
 data = pd.read_csv("Datasets/train.csv")
 X = data["Mensaje"]
@@ -21,21 +21,17 @@ X_train, X_test, y_train, y_test = train_test_split(
 from sklearn.svm import SVC
 
 # Crear y entrenar el modelo SVM
-model = SVC(kernel="rbf", class_weight="balanced")  # Kernel lineal funciona bien para texto
+model = SVC(kernel="linear", class_weight="balanced")  # Kernel lineal funciona bien para texto
 model.fit(X_train, y_train)
 
-from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import classification_report
 
 # Predecir en el conjunto de prueba
 y_pred = model.predict(X_test)
 
-# Mostrar reporte de clasificación
-print(classification_report(y_test, y_pred))
 
-# Matriz de confusión (opcional)
-print(confusion_matrix(y_test, y_pred))
-
-nuevo_mensaje = ["Reconfirma tu reserva para el tratamiento"]
+nuevo_mensaje = mensaje
 nuevo_vector = vectorizer.transform(nuevo_mensaje)
 prediccion = model.predict(nuevo_vector)
 print(prediccion)  # Debería devolver ["spam"]
+print (mensaje)
