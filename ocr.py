@@ -5,14 +5,14 @@ from PIL import Image
 
 def cargar_imagen(ruta):
     imagen = cv2.imread(ruta)
-    cv2.namedWindow("Imagen cargada", cv2.WINDOW_KEEPRATIO)
+    cv2.namedWindow("Imagen cargada", cv2.WINDOW_NORMAL)
     cv2.imshow("Imagen cargada", imagen)
     cv2.waitKey(0)
     return imagen
 
 def convertir_a_grises(imagen):
     gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
-    cv2.namedWindow("Ventana autoescalable gris", cv2.WINDOW_KEEPRATIO)
+    cv2.namedWindow("Ventana autoescalable gris", cv2.WINDOW_NORMAL)
     cv2.imshow("Ventana autoescalable gris", gris)  # Mostrar imagen en grises
     cv2.waitKey(0)
     return gris
@@ -37,7 +37,7 @@ def aplicar_umbral_adaptativo(gris, block_size=91, C=90):
     gris_invertido = cv2.bitwise_not(gris)
     
     # Mostrar la imagen invertida (solo para verificar si el fondo oscuro necesita inversión)
-    cv2.namedWindow("Gris invertido", cv2.WINDOW_KEEPRATIO)
+    cv2.namedWindow("Gris invertido", cv2.WINDOW_NORMAL)
     cv2.imshow("Gris invertido", gris_invertido)
     cv2.waitKey(0)
 
@@ -45,14 +45,14 @@ def aplicar_umbral_adaptativo(gris, block_size=91, C=90):
     imagen_umbral = cv2.adaptiveThreshold(gris_invertido,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,block_size,C)
     
     # Mostrar la imagen umbralizada
-    cv2.namedWindow("Umbral adaptativo aplicado", cv2.WINDOW_KEEPRATIO)
+    cv2.namedWindow("Umbral adaptativo aplicado", cv2.WINDOW_NORMAL)
     cv2.imshow("Umbral adaptativo aplicado", imagen_umbral)
     cv2.waitKey(0)
     
     return imagen_umbral
 
   
-#Estraccion del texto de la imagen
+#Extraccion del texto de la imagen
 def extraer_texto(imagen_procesada):
     return pytesseract.image_to_string(imagen_procesada, lang="spa", )
 
@@ -63,7 +63,7 @@ def guardar_texto(texto, nombre_archivo="texto_extraido.txt"):
 
 
 def main():
-    ruta_imagen = "imagenes-ocr/cade.jpg" 
+    ruta_imagen = "imagenes-ocr/cap3.jpg" 
     imagen = cargar_imagen(ruta_imagen)
     gris = convertir_a_grises(imagen)
     fondo_oscuro = detectar_fondo(gris)
