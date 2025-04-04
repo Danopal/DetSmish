@@ -1,28 +1,57 @@
-# programa para la extracción de caracteres de una 
-# captura de pantalla proporcionada por el usuario
-
-'''import cv2 
+import cv2
 import pytesseract
-from PIL import Image
-import matplotlib.pyplot as ploteo
+import numpy as np
 
+def cargar_imagen(ruta):
+    return cv2.imread(ruta)
 
-captura = cv2.imread('imagenes-ocr/ima-1.jpg') # Aqui va la ruta de la imagen de la que se va a esxtraer el texto del la captura
-gris = cv2.cvtColor(captura,cv2.COLOR_BG2GRAY)
+def convertir_a_grises(imagen):
+    return cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
 
-umbral = cv2.threshold(gris, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
+def detectar_fondo(gris, umbral=127):
+    """Detecta si el fondo es claro u oscuro con base en el brillo promedio"""
+    brillo_promedio = np.mean(gris)
+    return brillo_promedio < umbral  # True si fondo oscuro
 
-cv2.imwrite(umbral)'''
+def aplicar_umbral_fijo(gris):
+    _, imagen_umbral = cv2.threshold(gris, 127, 255, cv2.THRESH_BINARY)
+    return imagen_umbral
 
-import pytesseract
-from PIL import Image
+def aplicar_umbral_adaptativo(gris):
+    # Invertimos si el fondo es oscuro para mejorar el contraste
+    gris_invertido = cv2.bitwise_not(gris)
+    return cv2.adaptiveThreshold(gris_invertido, 255, 
+                                 cv2.ADAPTIVE_THRESH_MEAN_C, 
+                                 cv2.THRESH_BINARY, 11, 2
+                                 )
 
+def extraer_texto(imagen_procesada):
+    return pytesseract.image_to_string(imagen_procesada, lang="spa", )
 
+def guardar_texto(texto, nombre_archivo="texto_extraido.txt"):
+    with open(nombre_archivo, "w", encoding="utf-8") as archivo:
+        archivo.write(texto)
 
-# Cargar imagen
-ruta_captura = Image.open('imagenes-ocr/ima-1.jpg')
+def main():
+    ruta_imagen = "imagenes-ocr/cap3.jpg"  # <- Cambiar por la tuya
+    imagen = cargar_imagen(ruta_imagen)
+    gris = convertir_a_grises(imagen)
+    
+    fondo_oscuro = detectar_fondo(gris)
 
-# Extraer texto
-mensaje = pytesseract.image_to_string(ruta_captura, lang='spa')
+    if fondo_oscuro:
+        imagen_procesada = aplicar_umbral_adaptativo(gris)
+        print("Modo oscuro")
+    else:
+        imagen_procesada = aplicar_umbral_fijo(gris)
+        print("Modo claro")
 
-print(mensaje)
+    texto = extraer_texto(imagen_procesada)
+    print("Texto extraído:\n", texto)
+    
+    guardar_texto(texto)
+    texto_minusculas=texto.lower()
+    print (texto)
+
+if __name__ == "__main__":
+    main()
