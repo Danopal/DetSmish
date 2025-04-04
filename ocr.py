@@ -42,14 +42,7 @@ def aplicar_umbral_adaptativo(gris, block_size=91, C=90):
     cv2.waitKey(0)
 
     # Aplicar el umbral adaptativo
-    imagen_umbral = cv2.adaptiveThreshold(
-        gris_invertido,                 # Imagen de entrada
-        255,                            # Valor máximo
-        cv2.ADAPTIVE_THRESH_MEAN_C, # Método adaptativo
-        cv2.THRESH_BINARY,              # Tipo de umbral
-        block_size,                     # Tamaño de la vecindad
-        C                               # Constante a restar de la media
-    )
+    imagen_umbral = cv2.adaptiveThreshold(gris_invertido,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,block_size,C)
     
     # Mostrar la imagen umbralizada
     cv2.namedWindow("Umbral adaptativo aplicado", cv2.WINDOW_KEEPRATIO)
