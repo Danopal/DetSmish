@@ -1,6 +1,7 @@
 import cv2
 import pytesseract
 import numpy as np
+from PIL import Image
 
 def cargar_imagen(ruta):
     return cv2.imread(ruta)
@@ -42,16 +43,18 @@ def main():
     if fondo_oscuro:
         imagen_procesada = aplicar_umbral_adaptativo(gris)
         print("Modo oscuro")
+
     else:
         imagen_procesada = aplicar_umbral_fijo(gris)
         print("Modo claro")
 
     texto = extraer_texto(imagen_procesada)
-    print("Texto extraído:\n", texto)
+    
     
     guardar_texto(texto)
     texto_minusculas=texto.lower()
-    print (texto)
+    texto_en_una_linea = texto_minusculas.replace('\n', ' ').strip()
+    print(texto_en_una_linea)
 
 if __name__ == "__main__":
     main()
