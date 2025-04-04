@@ -4,9 +4,11 @@
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
-from  ocr import mensaje
+from  ocr import texto_en_una_linea
+from sklearn.svm import SVC
+from sklearn.metrics import classification_report
 # Cargar datos
-data = pd.read_csv("Datasets/train.csv")
+data = pd.read_csv("/DetSmish/Datasets/train.csv")
 X = data["Mensaje"]
 y = data["Etiqueta"]
 
@@ -18,20 +20,20 @@ X_vectorized = vectorizer.fit_transform(X)
 X_train, X_test, y_train, y_test = train_test_split(
     X_vectorized, y, test_size=0.2, random_state=42
 )
-from sklearn.svm import SVC
+
 
 # Crear y entrenar el modelo SVM
 model = SVC(kernel="linear", class_weight="balanced")  # Kernel lineal funciona bien para texto
 model.fit(X_train, y_train)
 
-from sklearn.metrics import classification_report
+
 
 # Predecir en el conjunto de prueba
 y_pred = model.predict(X_test)
 
 
-nuevo_mensaje = mensaje
+nuevo_mensaje = texto_en_una_linea
 nuevo_vector = vectorizer.transform(nuevo_mensaje)
 prediccion = model.predict(nuevo_vector)
 print(prediccion)  # Debería devolver ["spam"]
-print (mensaje)
+print (nuevo_mensaje)
