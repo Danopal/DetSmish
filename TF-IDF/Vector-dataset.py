@@ -44,13 +44,13 @@ def load_data(filepath):
         raise ValueError("El dataset debe contener las columnas 'Mensaje' y 'Etiqueta'")
     return df
 
-'''# Función para mostrar ejemplos de los datos
+# Función para mostrar ejemplos de los datos
 def show_examples(df, n=3):
     print("\n=== Ejemplos del dataset original ===")
     print(df[['Mensaje', 'Etiqueta']].head(n))
     
     print("\n=== Ejemplos del dataset limpio ===")
-    print(df[['clean_text', 'Etiqueta']].head(n))'''
+    print(df[['clean_text', 'Etiqueta']].head(n))
 
 # Función para crear la matriz TF-IDF
 def create_tfidf_matrix(df, **tfidf_params):
@@ -87,9 +87,10 @@ def main():
     # 2. Limpiar texto
     print("Limpiando texto...")
     df['clean_text'] = df['Mensaje'].apply(lambda x: clean_text(x, remove_punct=True, remove_numbers=True, remove_stopwords=True, lemmatize=True))
-  '''# 3. Mostrar ejemplos y estadísticas
+    
+    # 3. Mostrar ejemplos y estadísticas
     show_examples(df)
-    '''
+    
     # 4. Crear matriz TF-IDF
     print("\nCreando matriz TF-IDF...")
     X_tfidf, vectorizer, feature_names = create_tfidf_matrix(df, max_features=15000, ngram_range=(1, 2))

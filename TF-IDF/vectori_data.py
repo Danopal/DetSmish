@@ -52,13 +52,11 @@ def guardar_tfidf(X_tfidf, nombres_col, etiquetas, ruta_guardado='train_tfidf.cs
     dataF_tfidf.to_csv(ruta_guardado, index = False, compression='gzip')
     print("Dataset guardado en",ruta_guardado)
 
-
-
-    return
+def guardar_vetorizador(vectorizador, dataf_limpio, ruta ):
+    
 
 def main():
     ruta_DS = 'Datasets/train.csv'
     ruta_vectorizador = 'vectorizador.pkl'
     ruta_DS_limpio = 'dataset_limpio.csv'
     ruta_DStfidf = 'tfidf.csv'
-    return
