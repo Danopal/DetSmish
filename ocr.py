@@ -20,19 +20,16 @@ def convertir_a_grises(imagen):
 def detectar_fondo(gris, umbral=127):
     """Detecta si el fondo es claro u oscuro con base en el brillo promedio"""
     brillo_promedio = np.mean(gris)
-    return brillo_promedio < umbral  # True si fondo oscuro
+    return brillo_promedio < umbral  
 
 def aplicar_umbral_fijo(gris):
     _, imagen_umbral = cv2.threshold(gris, 127, 255, cv2.THRESH_BINARY)
     cv2.imshow("Umbral fijo aplicado", imagen_umbral) 
     cv2.waitKey(0)
-    return imagen_umbral
+    return imagen_umbral 
 
 def aplicar_umbral_adaptativo(gris, block_size=91, C=90):
-    """
-    Aplica un umbral adaptativo a la imagen en escala de grises.
-    Se puede ajustar block_size y C para mejorar la detección.
-    """
+  
     # Invertir la imagen si el fondo es oscuro
     gris_invertido = cv2.bitwise_not(gris)
     
@@ -54,7 +51,7 @@ def aplicar_umbral_adaptativo(gris, block_size=91, C=90):
   
 #Extraccion del texto de la imagen
 def extraer_texto(imagen_procesada):
-    return pytesseract.image_to_string(imagen_procesada, lang="spa", )
+    return pytesseract.image_to_string(imagen_procesada, lang="spa")
 
 #Funcion para guardar la imagen en el txt
 def guardar_texto(texto, nombre_archivo="texto_extraido.txt"): 
@@ -77,6 +74,7 @@ def main():
         print("Modo claro")
 
     texto = extraer_texto(imagen_procesada)
+    print(texto)
     texto_minusculas=texto.lower()
     texto_en_una_linea = texto_minusculas.replace('\n', ' ').strip()
     print(texto_en_una_linea)    
