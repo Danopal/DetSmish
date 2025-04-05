@@ -78,6 +78,7 @@ def main():
     texto_minusculas=texto.lower()
     texto_en_una_linea = texto_minusculas.replace('\n', ' ').strip()
     print(texto_en_una_linea)    
+    
     guardar_texto(texto_en_una_linea) 
 
 
