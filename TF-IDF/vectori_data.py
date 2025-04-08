@@ -30,9 +30,9 @@ def preprocesamiento(texto, remove_punct=True, remove_numbers=True, remove_stopw
         stop_words = set(stopwords.words(language))
         palabras = [w for w in palabras if w not in stop_words]
     
-    # Lematización básica (puedes sustituir por un lematizador si lo deseas)
+    # Lematización 
     if lemmatize:
-        palabras = [w if w not in string.punctuation else "" for w in palabras]  # Esto es solo un ejemplo simple de lematización
+        palabras = [w if w not in string.punctuation else "" for w in palabras] 
 
     
     return ' '.join(palabras)
@@ -87,6 +87,3 @@ def main():
 
 if __name__ == "__main__":
     main()    
-
-
-
