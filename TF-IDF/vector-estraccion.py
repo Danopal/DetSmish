@@ -26,6 +26,7 @@ def vectorize_text(new_text, joblib_file):
     tfidf_vectorizer = load_tfidf_vectorizer(joblib_file)
     # Vectorizar el texto preprocesado
     text_vector = tfidf_vectorizer.transform([processed_text])
+    print(processed_text)
     return text_vector
 
 # Ejemplo de uso
@@ -33,9 +34,8 @@ if __name__ == "__main__":
     # Ruta del archivo .joblib generado por tu código
     tfidf_joblib_file = "vectorizador_tfidf.pkl"
     # Texto a vectorizar
-    new_text = "nettix ; problerna de pago en su perti  verifica y actualiza lus datos antes del 27/03 aquí"
+    new_text = "'8:06 u 4660  +52 55 9711 7465  text mossage + sms today 8:08 0.5  netflix : problema de pago en su perfil!  verifica y actualiza tus datos antes del 27/03 aqui:  no y si qwertyouio sp asdfeghjklñ  zxcvbnm  123 (o) espacio intro  $ q"
     
     # Vectorizar el texto
     vectorized_result = vectorize_text(new_text, tfidf_joblib_file)
-    print(new_text)
     print("Vector TF-IDF:", vectorized_result)

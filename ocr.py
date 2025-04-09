@@ -28,7 +28,7 @@ def aplicar_umbral_fijo(gris):
     cv2.waitKey(0)
     return imagen_umbral 
 
-def aplicar_umbral_adaptativo(gris, block_size=91, C=90):
+def aplicar_umbral_adaptativo(gris, block_size=91, C=100):
   
     # Invertir la imagen si el fondo es oscuro
     gris_invertido = cv2.bitwise_not(gris)
@@ -60,7 +60,7 @@ def guardar_texto(texto, nombre_archivo="texto_extraido.txt"):
 
 
 def main():
-    ruta_imagen = "imagenes-ocr/cap2.png" 
+    ruta_imagen = "imagenes-ocr/cap2.jpg" 
     imagen = cargar_imagen(ruta_imagen)
     gris = convertir_a_grises(imagen)
     fondo_oscuro = detectar_fondo(gris)
