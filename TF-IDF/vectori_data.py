@@ -14,7 +14,7 @@ from nltk.tokenize import word_tokenize
 def preprocesamiento(texto, remove_punct=True, remove_numbers=True, remove_stopwords=True, lemmatize=True, language='spanish'):
     if not isinstance(texto, str):
         return ""
-    
+
     texto = texto.lower()
 
     if remove_punct:
@@ -66,8 +66,8 @@ def guardar_vetorizador(vectorizador, dataf_limpio, ruta_vectorizador = 'vectori
 
 def main():
     RUTA_DS = 'Datasets/train.csv'
-    RUTA_VECTORIZADOR = 'vectorizador.pkl'
-    RUTA_DS_LIMPIO = 'dataset_limpio.csv'
+    RUTA_VECTORIZADOR = 'vectorizador_tfidf.pkl'
+    RUTA_DS_LIMPIO = 'dDS_limpio.cvs'
     RUTA_DS_TFIDF = 'tfidf.csv'
 
     print("cargando los datos")

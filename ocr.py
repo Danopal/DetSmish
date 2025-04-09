@@ -60,7 +60,7 @@ def guardar_texto(texto, nombre_archivo="texto_extraido.txt"):
 
 
 def main():
-    ruta_imagen = "imagenes-ocr/cap3.jpg" 
+    ruta_imagen = "imagenes-ocr/cap2.png" 
     imagen = cargar_imagen(ruta_imagen)
     gris = convertir_a_grises(imagen)
     fondo_oscuro = detectar_fondo(gris)
