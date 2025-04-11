@@ -66,9 +66,9 @@ def guardar_vetorizador(vectorizador, dataf_limpio, ruta_vectorizador = 'vectori
 
 def main():
     RUTA_DS = 'Datasets/train.csv'
-    RUTA_VECTORIZADOR = 'vectorizador_tfidf.pkl'
+    RUTA_VECTORIZADOR = 'vect_tfidf.pkl'
     RUTA_DS_LIMPIO = 'dDS_limpio.cvs'
-    RUTA_DS_TFIDF = 'tfidf.csv'
+    RUTA_DS_TFIDF = 'dataset.csv'
 
     print("cargando los datos")
     dataframe = carga_de_DS(RUTA_DS)

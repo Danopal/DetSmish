@@ -10,7 +10,11 @@ def cargar_modelo(ruta_modelo):
 # Función para hacer predicciones con el modelo cargado
 def hacer_predicciones(modelo, datos_nuevos):
     predicciones = modelo.predict(datos_nuevos)
-    return predicciones
+    
+    # Reemplazar 'ham' por 'no es smishing' y 'spam' por 'smishing'
+    predicciones_transformadas = ['no smishing' if pred == 'ham' else 'smishing' for pred in predicciones]
+    
+    return predicciones_transformadas
 
 # Función para cargar el vectorizador TF-IDF desde el archivo .joblib
 def load_tfidf_vectorizer(joblib_file):
@@ -36,18 +40,17 @@ def vectorize_text(new_text, joblib_file):
 # Ejemplo de uso
 if __name__ == "__main__":
     # Rutas de los archivos
-    tfidf_joblib_file = "vectorizador_tfidf.pkl"  # Ruta del vectorizador TF-IDF
+    tfidf_joblib_file = "vect_tfidf.pkl"  # Ruta del vectorizador TF-IDF
     svm_model_file = "modelosvm.pkl"  # Ruta del modelo SVM entrenado
     
     # Texto a vectorizar desde el OCR
-    new_text = post_proc("imagenes-ocr/cap3.jpg")  # Aquí obtienes el texto de la imagen
+    new_text = post_proc("imagenes-ocr/cap3.jpg")  
     
     # Vectorizar el texto
     vectorized_result = vectorize_text(new_text, tfidf_joblib_file)
     # Convertir el vector TF-IDF disperso a denso
     vectorized_result = vectorized_result.toarray()
 
-    
     # Cargar el modelo SVM
     modelo_svm = cargar_modelo(svm_model_file)
     
@@ -55,4 +58,4 @@ if __name__ == "__main__":
     predicciones = hacer_predicciones(modelo_svm, vectorized_result)
     
     # Mostrar la predicción
-    print("Predicción del SVM:", predicciones)
+    print(f"Predicción del mensaje {new_text} es: {predicciones[0]}") 

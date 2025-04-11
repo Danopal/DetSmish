@@ -5,9 +5,9 @@ from PIL import Image
 
 def cargar_imagen(ruta):
     imagen = cv2.imread(ruta)
-    '''cv2.namedWindow("Imagen cargada", cv2.WINDOW_NORMAL)
+    cv2.namedWindow("Imagen cargada", cv2.WINDOW_NORMAL)
     cv2.imshow("Imagen cargada", imagen)
-    cv2.waitKey(0)'''
+    cv2.waitKey(0)
     return imagen
 
 def convertir_a_grises(imagen):
@@ -63,10 +63,7 @@ def post_proc(ruta_imagen):
     fondo_oscuro = detectar_fondo(gris)
     imagen_procesada = aplicar_umbral_adaptativo(gris) if fondo_oscuro else aplicar_umbral_fijo(gris)
 
-    if fondo_oscuro:
-        print("Modo oscuro")
-    else:
-        print("Modo claro")
+   
 
     texto = extraer_texto(imagen_procesada)
     texto_minusculas = texto.lower()
