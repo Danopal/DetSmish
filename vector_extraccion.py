@@ -34,7 +34,7 @@ def vectorize_text(new_text, joblib_file):
 # Ejemplo de uso
 if __name__ == "__main__":
     # Ruta del archivo .joblib generado por tu código
-    tfidf_joblib_file = "vectorizador_tfidf.pkl"
+    tfidf_joblib_file = "vect_tfidf.pkl"
     # Texto a vectorizar
     new_text = post_proc("imagenes-ocr/cap3.jpg")
     

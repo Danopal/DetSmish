@@ -5,20 +5,28 @@ from PIL import Image
 
 def cargar_imagen(ruta):
     imagen = cv2.imread(ruta)
+
+    '''
     cv2.namedWindow("Imagen cargada", cv2.WINDOW_NORMAL)
     cv2.imshow("Imagen cargada", imagen)
     cv2.waitKey(0)
+    '''
+
     return imagen
 
 def convertir_a_grises(imagen):
     gris = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
-    '''cv2.namedWindow("Ventana autoescalable gris", cv2.WINDOW_NORMAL)
+
+    '''
+    cv2.namedWindow("Ventana autoescalable gris", cv2.WINDOW_NORMAL)
     cv2.imshow("Ventana autoescalable gris", gris)  # Mostrar imagen en grises
-    cv2.waitKey(0)'''
+    cv2.waitKey(0)
+    '''
+
     return gris
 
 def detectar_fondo(gris, umbral=127):
-    """Detecta si el fondo es claro u oscuro con base en el brillo promedio"""
+    #Detecta si el fondo es claro u oscuro con base en el brillo promedio
     brillo_promedio = np.mean(gris)
     return brillo_promedio < umbral  
 
@@ -33,9 +41,11 @@ def aplicar_umbral_adaptativo(gris, block_size=91, C=100):
     gris_invertido = cv2.bitwise_not(gris)
     
     # Mostrar la imagen invertida (solo para verificar si el fondo oscuro necesita inversión)
-    '''cv2.namedWindow("Gris invertido", cv2.WINDOW_NORMAL)
+    '''
+    cv2.namedWindow("Gris invertido", cv2.WINDOW_NORMAL)
     cv2.imshow("Gris invertido", gris_invertido)
-    cv2.waitKey(0)'''
+    cv2.waitKey(0)
+    '''
 
     # Aplicar el umbral adaptativo
     imagen_umbral = cv2.adaptiveThreshold(gris_invertido, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, block_size, C)
@@ -51,11 +61,11 @@ def aplicar_umbral_adaptativo(gris, block_size=91, C=100):
 def extraer_texto(imagen_procesada):
     return pytesseract.image_to_string(imagen_procesada, lang="spa")
 
-# Función para guardar el texto en un archivo
+'''# Función para guardar el texto en un archivo
 def guardar_texto(texto, nombre_archivo="texto_extraido.txt"): 
     with open(nombre_archivo, "w", encoding="utf-8") as archivo:
         archivo.write(texto)
-
+'''
 def post_proc(ruta_imagen):
     imagen = cargar_imagen(ruta_imagen)
     gris = convertir_a_grises(imagen)
@@ -69,10 +79,12 @@ def post_proc(ruta_imagen):
     texto_minusculas = texto.lower()
     texto_en_una_linea = texto_minusculas.replace('\n', ' ').strip()
     #print(texto_en_una_linea)
-    
+    '''
     guardar_texto(texto_en_una_linea) 
+    '''
     return texto_en_una_linea
 
 if __name__ == "__main__":
     texto_final = post_proc("imagenes-ocr/cap2.jpg")
     print("Texto procesado:", texto_final)
+

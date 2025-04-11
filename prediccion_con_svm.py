@@ -11,7 +11,6 @@ def cargar_modelo(ruta_modelo):
 def hacer_predicciones(modelo, datos_nuevos):
     predicciones = modelo.predict(datos_nuevos)
     
-    # Reemplazar 'ham' por 'no es smishing' y 'spam' por 'smishing'
     predicciones_transformadas = ['no smishing' if pred == 'ham' else 'smishing' for pred in predicciones]
     
     return predicciones_transformadas
@@ -41,7 +40,7 @@ def vectorize_text(new_text, joblib_file):
 if __name__ == "__main__":
     # Rutas de los archivos
     tfidf_joblib_file = "vect_tfidf.pkl"  # Ruta del vectorizador TF-IDF
-    svm_model_file = "modelosvm.pkl"  # Ruta del modelo SVM entrenado
+    svm_model_file = "svm_entrenado.pkl"  # Ruta del modelo SVM entrenado
     
     # Texto a vectorizar desde el OCR
     new_text = post_proc("imagenes-ocr/cap3.jpg")  
