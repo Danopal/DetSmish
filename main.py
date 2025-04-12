@@ -10,10 +10,9 @@ import joblib
 modelo_svm = cargar_modelo('svm_entrenado.pkl')
 vectorizador_tfidf = joblib.load('vect_tfidf.pkl')
 
-# Crear la aplicación FastAPI
+
 app = FastAPI()
 
-# Ruta para procesar la imagen con OCR y extraer texto
 @app.post("/procesar-imagen/")
 async def procesar_imagen(file: UploadFile = File(...)):
     try:
@@ -21,7 +20,7 @@ async def procesar_imagen(file: UploadFile = File(...)):
         image_bytes = await file.read()  # Leer los bytes de la imagen
         image = Image.open(io.BytesIO(image_bytes))  # Abrir la imagen desde los bytes
 
-        # Procesar la imagen para extraer el texto usando OCR
+      
         texto_extraido = post_proc(image)
 
         return {"texto_extraido": texto_extraido}
