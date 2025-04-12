@@ -24,13 +24,18 @@ def load_tfidf_vectorizer(joblib_file):
 def vectorize_text(new_text, joblib_file):
     # Preprocesar el texto
     processed_text = preprocess_text(new_text)
+    
     # Cargar el vectorizador TF-IDF
     tfidf_vectorizer = load_tfidf_vectorizer(joblib_file)
+    
     # Vectorizar el texto preprocesado
     text_vector = tfidf_vectorizer.transform([processed_text])
-    print(processed_text)
-    text_vector_dense = text_vector.toarray()
-    return text_vector
+    
+    # Convertir la matriz dispersa en una matriz densa
+    text_vector_dense = text_vector.toarray()  # Esto convierte la matriz dispersa en una matriz densa
+    
+    return text_vector_dense
+
 
 # Ejemplo de uso
 if __name__ == "__main__":

@@ -18,7 +18,7 @@ app = FastAPI()
 async def procesar_imagen(file: UploadFile = File(...)):
     try:
         # Leer la imagen en memoria
-        image_bytes = await file.read()
+        image_bytes = await file.read()  # Leer los bytes de la imagen
         image = Image.open(io.BytesIO(image_bytes))  # Abrir la imagen desde los bytes
 
         # Procesar la imagen para extraer el texto usando OCR
@@ -39,6 +39,7 @@ async def predecir(texto: str):
         # Realizar la predicción usando el modelo SVM
         predicciones = hacer_predicciones(modelo_svm, texto_vectorizado)
 
+        # Devolver el resultado de la predicción
         return {"prediccion": predicciones[0]}
     
     except Exception as e:
