@@ -29,6 +29,7 @@ def vectorize_text(new_text, joblib_file):
     # Vectorizar el texto preprocesado
     text_vector = tfidf_vectorizer.transform([processed_text])
     print(processed_text)
+    text_vector_dense = text_vector.toarray()
     return text_vector
 
 # Ejemplo de uso

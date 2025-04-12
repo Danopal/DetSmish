@@ -34,7 +34,8 @@ def vectorize_text(new_text, joblib_file):
     processed_text = preprocess_text(new_text)
     tfidf_vectorizer = load_tfidf_vectorizer(joblib_file)
     text_vector = tfidf_vectorizer.transform([processed_text])
-    return text_vector
+    text_vector_dense = text_vector.toarray()
+    return text_vector_dense
 
 # Ejemplo de uso
 if __name__ == "__main__":
