@@ -43,7 +43,7 @@ if __name__ == "__main__":
     svm_model_file = "svm_entrenado.pkl"  # Ruta del modelo SVM entrenado
     
     # Texto a vectorizar desde el OCR
-    new_text = post_proc("imagenes-ocr/cap3.jpg")  
+    new_text = post_proc("imagenes-ocr/cap1.jpg")  
     
     # Vectorizar el texto
     vectorized_result = vectorize_text(new_text, tfidf_joblib_file)
