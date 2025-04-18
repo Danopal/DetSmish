@@ -29,7 +29,7 @@ async def procesar_imagen(file: UploadFile = File(...)):
         return {"error": str(e)}
 
 # Ruta para realizar la predicción usando el modelo SVM
-@app.post("/predecir/")
+@app.get("/predecir/")
 async def predecir(texto: str):
     try:
         # Vectorizar el texto usando el archivo vector_extraccion.py
